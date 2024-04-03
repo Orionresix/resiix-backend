@@ -33,7 +33,33 @@ def properties():
             'SELECT p_id, p_name, p_num_units, p_manager_id, p_country, p_city, p_address, p_zipcode, p_state, p_latitude, p_longitude, p_elevation, p_f_id'
             ' FROM maintenance.properties'
         )
-    property_data = cursor.fetchall()
+    columns = [col[0] for col in cursor.description]  # Extract column names
+    property_data = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    db.close()
+    return jsonify(property_data)
+
+
+@bp.route('/units')
+def units():
+    db = get_db()
+    cursor = db.cursor()
+
+    p_f_id = request.args.get('p_f_id')
+
+    if p_f_id:
+        cursor.execute(
+            'SELECT p_id,p_name,u_id,u_name,p_f_id'
+            ' FROM maintenance.properties,maintenance.units'
+            ' WHERE p_f_id = %s', (p_f_id,)
+        ) 
+    else:
+        cursor.execute(
+            'SELECT p_id,p_name,u_id,u_name,p_f_id'
+            ' FROM maintenance.properties,maintenance.units'
+            ' where p_id = units.u_p_id and p_f_id = 1'
+        )
+    columns = [col[0] for col in cursor.description]  # Extract column names
+    property_data = [dict(zip(columns, row)) for row in cursor.fetchall()]
     db.close()
     return jsonify(property_data)
 
@@ -52,7 +78,6 @@ def property_units(prop_id):
     unit_data = cursor.fetchall()
     db.close()
     return jsonify(unit_data)
-
 
 
 def get_property_data(p_id):

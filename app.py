@@ -5,6 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask.ext.session import Session
 
+
+
 SESSION_TYPE = 'memcache'
 
 app = Flask(__name__)

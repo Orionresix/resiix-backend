@@ -20,8 +20,8 @@ def units():
         )
     else:
         cursor.execute(
-        'select u_id, u_name, u_type, u_status, u_description, u_p_id, u_f_id, u_code '
-        ' from maintenance.units'
+         'select u_id, u_name, u_type, u_status, u_description, u_p_id, u_f_id, u_code '
+         ' from maintenance.units'
         )
     unit_data = cursor.fetchall()
     db.close()
@@ -83,3 +83,7 @@ def create():
         return jsonify({'message': 'unit added successfully'}), 201
 
     return jsonify({'error': 'Method not allowed'}), 405
+
+
+
+

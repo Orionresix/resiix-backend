@@ -16,6 +16,8 @@ from flask_login import (
 )
 from oauthlib.oauth2 import WebApplicationClient
 import requests
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+
 
 
 # User session management setup
@@ -120,7 +122,48 @@ def logout():
 @app.route("/")
 def index():
     if current_user.is_authenticated:
+        return redirect("http://localhost:3000/dashboard/home?email=" + current_user.email + "&name=" + current_user.name)
+        #return redirect("http://localhost:3000/dashboard/home")
+    else:
+        return redirect("http://localhost:3000/")  
+    
+    # (
+    #        ' <p>  Resiix By Orion </p> '
+    #        '<br> </br> <br> </br>'
+    #        '<a class="button" href="/login">Google with Login</a>'
+    #        )
+
+
+
+@app.route('/user_details')
+def get_user_details():
+    if current_user.is_authenticated:
+        user_email = current_user.email
+        user_name = current_user.name
+        profile_pic = current_user.profile_pic  # Assuming current_user object contains user details
+        return jsonify({'email': user_email, 'name': user_name, 'profile_pic': profile_pic})
+    else:
+        user_email = 'muthonimuriuki22@gmail.com'
+        user_name = 'peris'
+        user_id = 1
+        f_id = 1
+        return jsonify({'email': user_email, 'name': user_name, 'id': user_id, 'f_id': f_id})
+        #return jsonify({'error': 'User not authenticated'}), 401
+    
+
+def get_user(current_user):
+    if current_user.is_authenticated:
         db = get_db()
+        cursor = db.cursor(cursor_factory=DictCursor)  # Setting dictionary=True to return results as dictionaries
+        cursor.execute(
+        'SELECT p_f_id, p_id, p_name, p_num_units, p_manager_id, p_country, p_city FROM maintenance.properties WHERE p_id = %s', (p_id,)
+        )
+        current_user_data = cursor.fetchone()  # Fetch one row because we're fetching data for a single property
+        db.close()
+        return current_user_data
+
+
+
         cursor = db.cursor()
         user_email = current_user.email
 
@@ -132,23 +175,6 @@ def index():
         user_details = cursor.fetchall()
         db.close()
         return jsonify(user_details)
-
-        # (
-        #     "<p>Hello, {}! You're logged in! Email: {}</p>"
-        #     "<div><p>Google Profile Picture:</p>"
-        #     '<img src="{}" alt="Google profile pic"></img></div>'
-        #     '<a class="button" href="/logout">Logout</a>'.format(
-        #         current_user.name, current_user.email,
-        #         current_user.profile_pic
-        #     )
-        # )
-    else:
-        return (
-           ' <p>  Resiix By Orion </p> '
-           '<br> </br> <br> </br>'
-           '<a class="button" href="/login">Google with Login</a>'
-           )
-
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -219,3 +245,6 @@ def oldlogin():
         flash(error)
 
     return render_template('auth/login.html')
+
+
+
