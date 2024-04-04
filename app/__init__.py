@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from config import Config, SECRET_KEY
 from flask_jwt_extended import JWTManager
-from flask_mail import Mail, Message
+from flask_mail import Mail
 
 app = Flask(__name__)
 mail = Mail(app)
@@ -16,7 +16,7 @@ db = SQLAlchemy(app)
 
 
 
-from .views import auth, properties, units, work_orders, repairs,email
+from .views import auth, properties, units, work_orders, repairs
 
 app.register_blueprint(auth.bp)
 app.register_blueprint(properties.bp)
