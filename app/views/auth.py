@@ -1,11 +1,10 @@
 from flask import (
     Blueprint, flash, redirect, render_template, request, session, url_for,
-    jsonify, json,
+    jsonify, json
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from .db import get_db
 from .user import User
-from .. import app
 from config import GOOGLE_CLIENT_ID, GOOGLE_DISCOVERY_URL, GOOGLE_CLIENT_SECRET
 from flask_login import (
     LoginManager,
@@ -17,13 +16,14 @@ from flask_login import (
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+import app
 
 
 
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
-login_manager = LoginManager()
-login_manager.init_app(app)
+# login_manager = LoginManager()
+# login_manager.init_app(app)
 
 
 # OAuth 2 client setup
@@ -31,16 +31,19 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 
 # Flask-Login helper to retrieve a user from our db
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return User.get(user_id)
 
 
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
-@app.route("/login")
+bp = Blueprint('auth', __name__, url_prefix='')
+
+
+@bp.route("/login")
 def login():
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
@@ -56,7 +59,7 @@ def login():
     return redirect(request_uri)
 
 
-@app.route("/login/callback")
+@bp.route("/login/callback")
 def callback():
     # Get authorization code Google sent back to you
     code = request.args.get("code")
@@ -112,14 +115,14 @@ def callback():
     return redirect(url_for("index"))
 
 
-@app.route("/logout")
+@bp.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for("index"))
 
 
-@app.route("/")
+@bp.route("/")
 def index():
     if current_user.is_authenticated:
         return redirect("http://localhost:3000/dashboard/home?email=" + current_user.email + "&name=" + current_user.name)
@@ -134,8 +137,7 @@ def index():
     #        )
 
 
-
-@app.route('/user_details')
+@bp.route('/user_details')
 def get_user_details():
     if current_user.is_authenticated:
         user_email = current_user.email
@@ -180,8 +182,6 @@ def get_user(current_user):
 
 
 
-
-bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @bp.route('/users')

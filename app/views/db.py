@@ -1,16 +1,22 @@
-from .. import app  # Import the app instance
+import app  # Import the app instance
+from flask import current_app
 import psycopg2
 import click
 
 
-# Connect to the database using app configuration
 def get_db():
+    db_uri = current_app.config['SQLALCHEMY_DATABASE_URI']
+    dbname = db_uri.split('/')[-1]
+    user = db_uri.split('://')[1].split(':')[0]
+    password = db_uri.split(':')[2].split('@')[0]
+    host = db_uri.split('@')[1].split(':')[0]
+    port = db_uri.split(':')[3].split('/')[0]  
     conn = psycopg2.connect(
-        dbname=app.config['SQLALCHEMY_DATABASE_URI'].split('/')[-1],
-        user=app.config['SQLALCHEMY_DATABASE_URI'].split('://')[1].split(':')[0],
-        password=app.config['SQLALCHEMY_DATABASE_URI'].split(':')[2].split('@')[0],
-        host=app.config['SQLALCHEMY_DATABASE_URI'].split('@')[1].split(':')[0],
-        port=app.config['SQLALCHEMY_DATABASE_URI'].split(':')[3].split('/')[0]
+        dbname=dbname,
+        user=user,
+        password=password,
+        host=host,
+        port=port
     )
     return conn
 
