@@ -1,13 +1,12 @@
 from flask import (
     Blueprint, flash, redirect, render_template, request, session, url_for,
-    jsonify, json
+    jsonify, json, current_user
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from .db import get_db
 from .user import User
 from config import GOOGLE_CLIENT_ID, GOOGLE_DISCOVERY_URL, GOOGLE_CLIENT_SECRET
 from flask_login import (
-    current_user,
     login_required,
     login_user,
     logout_user,
@@ -17,20 +16,9 @@ import requests
 
 
 
-# User session management setup
-# https://flask-login.readthedocs.io/en/latest
-# login_manager = LoginManager()
-# login_manager.init_app(app)
-
-
 # OAuth 2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
-
-# Flask-Login helper to retrieve a user from our db
-# @login_manager.user_loader
-# def load_user(user_id):
-#     return User.get(user_id)
 
 
 def get_google_provider_cfg():
