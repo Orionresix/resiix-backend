@@ -17,6 +17,7 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 sess = Session()
 
 
+
 if __name__ == '__main__':
     sess.init_app(app)
     app.run(debug=True)

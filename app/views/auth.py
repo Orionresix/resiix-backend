@@ -176,6 +176,11 @@ def get_user(current_user):
         db.close()
         return jsonify(user_details)
 
+
+
+
+
+
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 

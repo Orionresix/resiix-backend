@@ -63,7 +63,7 @@ def category():
     db = get_db()
     cursor = db.cursor()
     cursor.execute(
-         'SELECT m_id, m_name, '
+         'SELECT m_id, m_name '
          ' FROM  maintenance.maintenance_category'
          ' ORDER BY  m_id DESC'
         )
