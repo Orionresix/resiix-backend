@@ -5,6 +5,18 @@
 # from google.auth.transport.requests import Request
 # from .. import app
 
+
+
+# app.config.update(
+#     MAIL_SERVER='smtp.gmail.com',
+#     MAIL_PORT=587,
+#     MAIL_USE_TLS=True,
+#     MAIL_USE_SSL=False,
+#     MAIL_USERNAME='muthonimuriuki22@gmail.com',  # Your Gmail address
+#     MAIL_PASSWORD='',  # Leave this blank
+# )
+
+
 # mail = Mail(app)
 
 # @app.route('/authorize')
