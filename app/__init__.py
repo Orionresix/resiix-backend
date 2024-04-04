@@ -1,5 +1,5 @@
 from flask import Flask
-# from flask_cors import CORS
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from config import Config, SECRET_KEY
 from flask_jwt_extended import JWTManager
@@ -12,7 +12,7 @@ app.config['JWT_SECRET_KEY'] = SECRET_KEY
 jwt = JWTManager(app)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
-# CORS(app)
+CORS(app)
 
 
 app.config.update(
