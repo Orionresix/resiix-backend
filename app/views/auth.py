@@ -1,6 +1,6 @@
 from flask import (
     Blueprint, flash, redirect, render_template, request, session, url_for,
-    jsonify, json, current_user
+    jsonify, json
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from .db import get_db
@@ -10,6 +10,7 @@ from flask_login import (
     login_required,
     login_user,
     logout_user,
+    current_user
 )
 from oauthlib.oauth2 import WebApplicationClient
 import requests
