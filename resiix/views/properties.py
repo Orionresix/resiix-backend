@@ -2,10 +2,9 @@ from flask import (
     Blueprint, redirect, request, url_for, jsonify
 )
 from psycopg2.extras import DictCursor
-from werkzeug.exceptions import abort
-from app.views.auth import login_required
+# from werkzeug.exceptions import abort
 
-from app.views.db import get_db
+from resiix.views.db import get_db
 
 
 bp = Blueprint('properties', __name__, url_prefix='/properties')

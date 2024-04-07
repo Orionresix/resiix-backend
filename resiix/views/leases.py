@@ -4,9 +4,9 @@ from flask import (
 from psycopg2.extras import DictCursor
 from werkzeug.exceptions import abort
 
-from app.views.auth import login_required
+from resiix.views.auth import login_required
 
-from app.views.db import get_db
+from resiix.views.db import get_db
 
 from .. import app
 

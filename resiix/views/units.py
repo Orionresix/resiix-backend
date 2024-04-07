@@ -1,8 +1,8 @@
 from flask import (
     Blueprint,  jsonify, request
 )
-from app.views.db import get_db
-from app.views.properties import get_property_data
+from resiix.views.db import get_db
+from resiix.views.properties import get_property_data
 from psycopg2.extras import DictCursor
 
 bp = Blueprint('units', __name__, url_prefix='/units')

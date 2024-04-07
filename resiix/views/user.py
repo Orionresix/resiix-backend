@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 
-from app.views.db import get_db
+from resiix.views.db import get_db
 
 class User(UserMixin):
     def __init__(self, id_, name, email, profile_pic):

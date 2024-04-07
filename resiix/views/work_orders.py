@@ -1,7 +1,7 @@
 from flask import (
     Blueprint, request, jsonify
 )
-from app.views.db import get_db
+from resiix.views.db import get_db
 
 
 bp = Blueprint('work_orders', __name__, url_prefix='/work_orders')

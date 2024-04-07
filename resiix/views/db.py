@@ -1,4 +1,4 @@
-import app  # Import the app instance
+import resiix  # Import the app instance
 from flask import current_app
 import psycopg2
 import click
