@@ -21,7 +21,7 @@ def work_orders():
          'SELECT wo_id, wo_pm_description, wo_l_id, wo_u_id, wo_created_time, '
          'wo_assigned_to, wo_assigned_by, wo_status, wo_due_date, wo_r_id, '
          'r_id, r_type, r_description, r_img_url, r_img_url1, r_img_url2, '
-         'r_l_id, r_u_id, r_created_time, r_phone '
+         'r_l_id, r_u_id, r_created_time, r_phone , p_name, u_name, r_priority'
          ' FROM maintenance.work_order, maintenance.report '
          ' WHERE wo_r_id = r_id AND wo_id = %s '
          ' ORDER BY wo_created_time, r_created_time DESC'
@@ -54,8 +54,11 @@ def work_orders():
          'SELECT wo_id, wo_pm_description, wo_l_id, wo_u_id, wo_created_time,'
          'wo_assigned_to, wo_assigned_by, wo_status, wo_due_date, wo_r_id,'
          ' r_id, r_type, r_description,r_img_url, r_img_url1, r_img_url2,'
-         'r_l_id, r_u_id, r_created_time, r_phone'
-         ' from maintenance.work_order, maintenance.report where wo_r_id=r_id'
+         'r_l_id, r_u_id, r_created_time, r_phone,  p_name, u_name, r_priority'
+         ' from maintenance.work_order, maintenance.report,'
+         'maintenance.properties ,maintenance.units'
+         ' where wo_r_id = r_id and  p_id = r_p_id and r_u_id = u_id'
+         ' and wo_id is not null'
          ' order by wo_created_time,r_created_time desc'
         )
     columns = [col[0] for col in cursor.description]  # Extract column names
