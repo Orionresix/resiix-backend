@@ -110,8 +110,18 @@ def logout():
     return redirect(url_for("index"))
 
 
+
 @bp.route("/")
 def index():
+    return (
+           ' <p>  Resiix By Orion </p> '
+           '<br> </br> <br> </br>'
+           '<a class="button" href="/login">Google with Login</a>'
+           )
+
+
+@bp.route("/index")
+def index1():
     if current_user.is_authenticated:
         return redirect("http://localhost:3000/dashboard/home?email=" + current_user.email + "&name=" + current_user.name)
         #return redirect("http://localhost:3000/dashboard/home")
