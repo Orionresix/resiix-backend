@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from config import SECRET_KEY, Config
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
+from flask_login import LoginManager
+login_manager = LoginManager()
 
 
 def create_app(config_object=Config):
@@ -12,6 +14,8 @@ def create_app(config_object=Config):
     register_blueprints(app)
     app.secret_key = SECRET_KEY
     app.config['JWT_SECRET_KEY'] = SECRET_KEY
+    login_manager.init_app(app)
+    
     mail = Mail(app)
     jwt = JWTManager(app)
     db = SQLAlchemy(app)

@@ -7,6 +7,7 @@ from .db import get_db
 from .user import User
 from config import GOOGLE_CLIENT_ID, GOOGLE_DISCOVERY_URL, GOOGLE_CLIENT_SECRET
 from flask_login import (
+    LoginManager,
     login_required,
     login_user,
     logout_user,
@@ -14,6 +15,7 @@ from flask_login import (
 )
 from oauthlib.oauth2 import WebApplicationClient
 import requests
+
 
 
 
