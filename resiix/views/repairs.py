@@ -110,8 +110,9 @@ def get_repairs():
     # Execute the SQL query
     cursor.execute(base_query, params)
 
-    # Fetch and return the results
-    results = cursor.fetchall()
+    columns = [col[0] for col in cursor.description]  # Extract column names
+    results = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    db.close()
     return jsonify(results), 200
 
 
