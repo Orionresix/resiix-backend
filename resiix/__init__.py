@@ -24,9 +24,10 @@ def create_app(config_object=Config):
 
 
 def register_blueprints(app):
-    from .views import auth, properties, units, work_orders, repairs
+    from .views import auth, properties, units, work_orders, repairs, technicians
     app.register_blueprint(auth.bp)
     app.register_blueprint(properties.bp)
     app.register_blueprint(units.bp)
     app.register_blueprint(work_orders.bp)
     app.register_blueprint(repairs.bp)
+    app.register_blueprint(technicians.bp)
