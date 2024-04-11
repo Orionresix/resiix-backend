@@ -250,4 +250,59 @@ def oldlogin():
     return render_template('auth/login.html')
 
 
+@bp.route('/tenantloginNghojh', methods=['POST'])
+def tenantlogifghgfnn():
 
+    db = get_db()
+    cursor = db.cursor()
+
+    if request.method == 'POST':
+        username = request.form.get('email')
+        passcode = request.form.get('passcode')
+        
+        if not username or not passcode:
+            return jsonify({'error': 'Email and passcode are required.'}), 400
+
+        cursor.execute(
+            'SELECT * FROM maintenance.units WHERE UPPER(u_name) = UPPER(?)',
+            (username,)
+        )
+        userdata = cursor.fetchone()
+
+        if userdata is None:
+            return jsonify({'error': 'Incorrect Unit code.'}), 400
+
+        if passcode and userdata['passcode'] == passcode:
+            unitdetails = userdata
+            return jsonify(unitdetails)
+
+        return jsonify({'error': 'Incorrect passcode.'}), 400
+
+    return jsonify({'error': 'Method not allowed.'}), 405
+
+
+@bp.route('/tenantlogin', methods=('GET', 'POST'))
+def tenantlogin():
+    db = get_db()
+    cursor = db.cursor()
+
+    unitcode = request.args.get('email')
+    passcode = request.args.get('passcode')
+
+    query = None
+    wo_data = None
+
+    if passcode:
+        query = (
+             'SELECT * FROM maintenance.units,maintenance.leases,maintenance.properties'
+             ' WHERE l_u_id=units.u_id and u_p_id=p_id and UPPER(u_name) = UPPER(%s)'
+             'and  UPPER(passcode) = UPPER(%s)'
+            )
+    if query:
+        cursor.execute(query, (unitcode, passcode,))
+        row = cursor.fetchone()
+        if row:
+            columns = [col[0] for col in cursor.description]
+            wo_data = dict(zip(columns, row))
+        db.close()
+    return jsonify(wo_data)
