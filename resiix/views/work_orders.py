@@ -20,10 +20,11 @@ def work_orders():
         query = (
          'SELECT wo_id, wo_pm_description, wo_l_id, wo_u_id, wo_created_time, '
          'wo_assigned_to, wo_assigned_by, wo_status, wo_due_date, wo_r_id, '
+         'wo_technician_remarks, wo_material_used, wo_material_cost, wo_labor_cost, wo_closed_time,'
          'r_id, r_type, r_description, r_img_url, r_img_url1, r_img_url2, '
          'r_l_id, r_u_id, r_created_time, r_phone , p_name, u_name, r_priority'
          ' FROM maintenance.work_order, maintenance.report '
-         ' WHERE wo_r_id = r_id AND wo_id = %s '
+         ' WHERE wo_r_id = r_id AND wo_id = %s and wo_id is not null '
          ' ORDER BY wo_created_time, r_created_time DESC'
         )
         cursor.execute(query, (wo_id,))
@@ -31,10 +32,11 @@ def work_orders():
         query = (
          'SELECT wo_id, wo_pm_description, wo_l_id, wo_u_id, wo_created_time,'
          ' wo_assigned_to, wo_assigned_by, wo_status, wo_due_date, wo_r_id,'
+         'wo_technician_remarks, wo_material_used, wo_material_cost, wo_labor_cost, wo_closed_time,'
          ' r_id, r_type, r_description,r_img_url, r_img_url1, r_img_url2,'
          ' r_l_id, r_u_id, r_created_time, r_phone'
          ' from maintenance.work_order, maintenance.report'
-         ' where wo_r_id=r_id and wo_assigned_by = %s'
+         ' where wo_r_id=r_id and wo_assigned_by = %s and wo_id is not null'
          ' order by wo_created_time,r_created_time desc'
         )
         cursor.execute(query, (wo_assigned_by,))
@@ -42,6 +44,7 @@ def work_orders():
         query = (
          'SELECT wo_id, wo_pm_description, wo_l_id, wo_u_id, wo_created_time,'
          'wo_assigned_to, wo_assigned_by, wo_status, wo_due_date, wo_r_id,'
+         'wo_technician_remarks, wo_material_used, wo_material_cost, wo_labor_cost, wo_closed_time,'
          ' r_id, r_type, r_description,r_img_url, r_img_url1, r_img_url2,'
          'r_l_id, r_u_id, r_created_time, r_phone,  p_name, u_name, r_priority'
          ' from maintenance.work_order, maintenance.report,'
@@ -55,6 +58,7 @@ def work_orders():
         cursor.execute(
          'SELECT wo_id, wo_pm_description, wo_l_id, wo_u_id, wo_created_time,'
          'wo_assigned_to, wo_assigned_by, wo_status, wo_due_date, wo_r_id,'
+         'wo_technician_remarks, wo_material_used, wo_material_cost, wo_labor_cost, wo_closed_time,'
          ' r_id, r_type, r_description,r_img_url, r_img_url1, r_img_url2,'
          'r_l_id, r_u_id, r_created_time, r_phone,  p_name, u_name, r_priority'
          ' from maintenance.work_order, maintenance.report,'
@@ -135,3 +139,47 @@ def create():
             db.close()  # Close the database connection
 
         return jsonify({'message': 'workorder assigned  successfully'}), 201
+
+
+@bp.route('/close',  methods=['POST'])
+def close():
+    db = get_db()
+    cursor = db.cursor()
+    if request.method == 'POST':
+        data = request.json
+        wo_technician_remarks = data.get('wo_technician_remarks')
+        wo_material_used = data.get('wo_material_used')
+        wo_material_cost = data.get('wo_material_cost')
+        wo_labor_cost = data.get('wo_labor_cost')
+        wo_closed_time = data.get('wo_closed_time')
+        wo_status = "DONE"
+        wo_r_id = data.get('wo_r_id')
+        wo_id = data.get('wo_id')
+
+    error = None
+    if error is not None:
+        return jsonify({'error': error}), 400  # Return error response
+    else:
+        try:
+            db = get_db()
+            cursor = db.cursor()
+            cursor.execute(
+                'UPDATE maintenance.work_order SET wo_technician_remarks = %s, '
+                ' wo_material_used = %s, wo_material_cost = %s,'
+                ' wo_labor_cost = %s, wo_closed_time = %s, wo_status = %s'
+                '  WHERE wo_id =  %s',
+                (wo_technician_remarks,  wo_material_used, wo_material_cost,
+                 wo_labor_cost, wo_closed_time, wo_status, wo_id,)
+            )
+            cursor.execute(
+                'update maintenance.report '
+                'set r_status = %s  WHERE r_id =  %s', (wo_status, wo_r_id,)
+            )
+            db.commit()
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500  # Return error response
+        finally:
+            cursor.close()  # Close the cursor
+            db.close()  # Close the database connection
+
+        return jsonify({'message': 'workorder submitted  successfully'}), 201
