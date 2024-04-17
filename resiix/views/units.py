@@ -79,8 +79,6 @@ def create():
             u_pm_id = property_data['p_manager_id']
         
         error = None
-        if not u_pm_id:
-            error = 'You must select property to add unit.'
 
         if error is not None:
             return jsonify({'error': error}), 400  # Return error response
