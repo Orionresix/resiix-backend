@@ -15,12 +15,20 @@ from flask_login import (
 )
 from oauthlib.oauth2 import WebApplicationClient
 import requests
+import jwt
 
 
-
+auth_bp = Blueprint('auth', __name__)
+login_manager = LoginManager()
 
 # OAuth 2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
+
+# Flask-Login helper to retrieve a user from our db
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
 
 
 
@@ -28,26 +36,26 @@ def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
-bp = Blueprint('auth', __name__, url_prefix='')
 
 
-@bp.route("/login")
+@auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+         
     # Find out what URL to hit for Google login
-    google_provider_cfg = get_google_provider_cfg()
-    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+        google_provider_cfg = get_google_provider_cfg()
+        authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
     # Use library to construct the request for Google login and provide
     # scopes that let you retrieve user's profile from Google
-    request_uri = client.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
-        scope=["openid", "email", "profile"],
-    )
-    return redirect(request_uri)
+        request_uri = client.prepare_request_uri(
+            authorization_endpoint,
+            redirect_uri=request.base_url + "/callback",
+            scope=["openid", "email", "profile"],
+        )
+        return redirect(request_uri)
 
-
-@bp.route("/login/callback")
+@auth_bp.route("/login/callback", methods=["GET", "POST"])
 def callback():
     # Get authorization code Google sent back to you
     code = request.args.get("code")
@@ -96,46 +104,52 @@ def callback():
     if not User.get(unique_id):
         User.create(unique_id, users_name, users_email, picture)
 
+        # Generate JWT token
+    jwt_token = jwt.encode({'email': users_email}, 'your_secret_key',
+                            algorithm='HS256')
+    
+
 # Begin user session by logging the user in
     login_user(user)
 
 # Send user back to homepage
-    return redirect(url_for("index"))
+     # Return JWT token as JSON
+    return jsonify({'token': jwt_token})
+    # return redirect(url_for("auth.index"))
 
 
-@bp.route("/logout")
+@auth_bp.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for("index"))
+    return redirect(url_for("auth.index"))
 
 
-
-@bp.route("/")
+@auth_bp.route("/")
 def index():
-    return (
-           ' <p>  Resiix By Orion </p> '
-           '<br> </br> <br> </br>'
-           '<a class="button" href="/login">Google with Login</a>'
-           )
-
-
-@bp.route("/index")
-def index1():
     if current_user.is_authenticated:
-        return redirect("http://localhost:3000/dashboard/home?email=" + current_user.email + "&name=" + current_user.name)
-        #return redirect("http://localhost:3000/dashboard/home")
+        # Set user data in session (example)
+        session['user_id'] = current_user.id
+        session['user_email'] = current_user.email
+
+        return current_user
+        return redirect("http://localhost:3000/dashboard/home")
+
+        # return (
+        #     "<p>Hello, {}! You're logged in! Email: {}</p>"
+        #     "<div><p>Google Profile Picture:</p>"
+        #     '<img src="{}" alt="Google profile pic"></img></div>'
+        #     '<a class="button" href="/logout">Logout</a>'.format(
+        #         current_user.name, current_user.email, current_user.profile_pic  )
+        # )
     else:
-        return redirect("http://localhost:3000/")  
-    
-    # (
-    #        ' <p>  Resiix By Orion </p> '
-    #        '<br> </br> <br> </br>'
-    #        '<a class="button" href="/login">Google with Login</a>'
-    #        )
+        return redirect("http://localhost:3000")
 
 
-@bp.route('/user_details')
+
+
+
+@auth_bp.route('/user_details')
 def get_user_details():
     if current_user.is_authenticated:
         user_email = current_user.email
@@ -143,8 +157,8 @@ def get_user_details():
         profile_pic = current_user.profile_pic  # Assuming current_user object contains user details
         return jsonify({'email': user_email, 'name': user_name, 'profile_pic': profile_pic})
     else:
-        user_email = 'muthonimuriuki22@gmail.com'
-        user_name = 'peris'
+        user_email = 'unknown@gmail.com'
+        user_name = 'notme'
         user_id = 1
         f_id = 1
         return jsonify({'email': user_email, 'name': user_name, 'id': user_id, 'f_id': f_id})
@@ -182,7 +196,7 @@ def get_user(current_user):
 
 
 
-@bp.route('/users')
+@auth_bp.route('/users')
 def users():
     db = get_db()
     cursor = db.cursor()
@@ -195,7 +209,7 @@ def users():
     return jsonify(user_data)
 
 
-@bp.route('/register', methods=('GET', 'POST'))
+@auth_bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
         username = request.form['username']
@@ -224,7 +238,7 @@ def register():
     return "User created successfully", 201
 
 
-@bp.route('/oldlogin', methods=('GET', 'POST'))
+@auth_bp.route('/oldlogin', methods=('GET', 'POST'))
 def oldlogin():
     if request.method == 'POST':
         username = request.form['username']
@@ -250,7 +264,7 @@ def oldlogin():
     return render_template('auth/login.html')
 
 
-@bp.route('/tenantloginNghojh', methods=['POST'])
+@auth_bp.route('/tenantloginNghojh', methods=['POST'])
 def tenantlogifghgfnn():
 
     db = get_db()
@@ -281,7 +295,7 @@ def tenantlogifghgfnn():
     return jsonify({'error': 'Method not allowed.'}), 405
 
 
-@bp.route('/tenantlogin', methods=('GET', 'POST'))
+@auth_bp.route('/tenantlogin', methods=('GET', 'POST'))
 def tenantlogin():
     db = get_db()
     cursor = db.cursor()
@@ -300,6 +314,31 @@ def tenantlogin():
             )
     if query:
         cursor.execute(query, (unitcode, passcode,))
+        row = cursor.fetchone()
+        if row:
+            columns = [col[0] for col in cursor.description]
+            wo_data = dict(zip(columns, row))
+        db.close()
+    return jsonify(wo_data)
+
+
+@auth_bp.route('/tenantinfo', methods=('GET', 'POST'))
+def tenantinfo():
+    db = get_db()
+    cursor = db.cursor()
+
+    unitcode = request.args.get('u_id')
+
+    query = None
+    wo_data = None
+
+    if unitcode:
+        query = (
+             'SELECT * FROM maintenance.units,maintenance.leases,maintenance.properties'
+             ' WHERE l_u_id=units.u_id and u_p_id=p_id and u_id = %s'
+            )
+    if query:
+        cursor.execute(query, (unitcode, ))
         row = cursor.fetchone()
         if row:
             columns = [col[0] for col in cursor.description]

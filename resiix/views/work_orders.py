@@ -5,72 +5,69 @@ from resiix.views.db import get_db
 
 
 bp = Blueprint('work_orders', __name__, url_prefix='/work_orders')
-
-
-@bp.route('/')
+@bp.route('/', methods=['GET'])
 def work_orders():
     db = get_db()
     cursor = db.cursor()
-
-    wo_id = request.args.get('wo_id')
-    wo_assigned_by = request.args.get('wo_assigned_by')
-    wo_assigned_to = request.args.get('wo_assigned_to')
-
-    if wo_id:
-        query = (
-         'SELECT wo_id, wo_pm_description, wo_l_id, wo_u_id, wo_created_time, '
-         'wo_assigned_to, wo_assigned_by, wo_status, wo_due_date, wo_r_id, '
-         'wo_technician_remarks, wo_material_used, wo_material_cost, wo_labor_cost, wo_closed_time,'
-         'r_id, r_type, r_description, r_img_url, r_img_url1, r_img_url2, '
-         'r_l_id, r_u_id, r_created_time, r_phone , p_name, u_name, r_priority'
-         ' FROM maintenance.work_order, maintenance.report '
-         ' WHERE wo_r_id = r_id AND wo_id = %s and wo_id is not null '
-         ' ORDER BY wo_created_time, r_created_time DESC'
-        )
-        cursor.execute(query, (wo_id,))
-    elif wo_assigned_by:
-        query = (
-         'SELECT wo_id, wo_pm_description, wo_l_id, wo_u_id, wo_created_time,'
-         ' wo_assigned_to, wo_assigned_by, wo_status, wo_due_date, wo_r_id,'
-         'wo_technician_remarks, wo_material_used, wo_material_cost, wo_labor_cost, wo_closed_time,'
-         ' r_id, r_type, r_description,r_img_url, r_img_url1, r_img_url2,'
-         ' r_l_id, r_u_id, r_created_time, r_phone'
-         ' from maintenance.work_order, maintenance.report'
-         ' where wo_r_id=r_id and wo_assigned_by = %s and wo_id is not null'
-         ' order by wo_created_time,r_created_time desc'
-        )
-        cursor.execute(query, (wo_assigned_by,))
-    elif wo_assigned_to:
-        query = (
-         'SELECT wo_id, wo_pm_description, wo_l_id, wo_u_id, wo_created_time,'
-         'wo_assigned_to, wo_assigned_by, wo_status, wo_due_date, wo_r_id,'
-         'wo_technician_remarks, wo_material_used, wo_material_cost, wo_labor_cost, wo_closed_time,'
-         ' r_id, r_type, r_description,r_img_url, r_img_url1, r_img_url2,'
-         'r_l_id, r_u_id, r_created_time, r_phone,  p_name, u_name, r_priority'
-         ' from maintenance.work_order, maintenance.report,'
-         'maintenance.properties ,maintenance.units'
-         ' where wo_r_id = r_id and  p_id = r_p_id and r_u_id = u_id'
-         ' and wo_id is not null  and wo_assigned_to = %s'
-         ' order by wo_created_time,r_created_time desc'
-        )
-        cursor.execute(query, (wo_assigned_to,))
-    else:
-        cursor.execute(
-         'SELECT wo_id, wo_pm_description, wo_l_id, wo_u_id, wo_created_time,'
-         'wo_assigned_to, wo_assigned_by, wo_status, wo_due_date, wo_r_id,'
-         'wo_technician_remarks, wo_material_used, wo_material_cost, wo_labor_cost, wo_closed_time,'
-         ' r_id, r_type, r_description,r_img_url, r_img_url1, r_img_url2,'
-         'r_l_id, r_u_id, r_created_time, r_phone,  p_name, u_name, r_priority'
-         ' from maintenance.work_order, maintenance.report,'
+    base_query = (
+         'SELECT * from maintenance.work_order, maintenance.report,'
          'maintenance.properties ,maintenance.units'
          ' where wo_r_id = r_id and  p_id = r_p_id and r_u_id = u_id'
          ' and wo_id is not null'
-         ' order by wo_created_time,r_created_time desc'
-        )
+    )
+
+    # Initialize an empty list to store the conditions
+    conditions = []
+    params = []
+
+    # Check for filter parameters and construct conditions accordingly
+    wo_status = request.args.get('wo_status')
+    if wo_status:
+        conditions.append('wo_status = %s')
+        params.append(wo_status)
+    
+    wo_assigned_to = request.args.get('wo_assigned_to')
+    if wo_assigned_to:
+        conditions.append('wo_assigned_to = %s')
+        params.append(wo_assigned_to)
+
+    r_status = request.args.get('r_status')
+    if r_status:
+        conditions.append('r_status = %s')
+        params.append(r_status)
+
+    r_p_id = request.args.get('r_p_id')
+    if r_p_id:
+        conditions.append('r_p_id = %s')
+        params.append(r_p_id)
+    
+    r_type = request.args.get('r_type')
+    if r_type:
+        conditions.append('r_type = %s')
+        params.append(r_type)
+
+    r_priority = request.args.get('r_priority')
+    if r_priority:
+        conditions.append('r_priority = %s')
+        params.append(r_priority)
+
+    # Combine all conditions with "AND" and append to the base query
+    if conditions:
+        base_query += ' AND ' + ' AND '.join(conditions)
+
+    # Add ORDER BY clause to the query
+    base_query += ' ORDER BY wo_created_time, r_created_time DESC'
+
+    # Execute the SQL query
+    cursor.execute(base_query, params)
+
     columns = [col[0] for col in cursor.description]  # Extract column names
-    wo_data = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    results = [dict(zip(columns, row)) for row in cursor.fetchall()]
     db.close()
-    return jsonify(wo_data)
+    return jsonify(results), 200
+
+
+
 
 
 @bp.route('/get_request_count')
