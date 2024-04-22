@@ -19,7 +19,7 @@ def units():
         ' LEFT JOIN maintenance.leases ON units.u_id = leases.l_u_id'
         ' WHERE u_f_id is not null'
     )
-     # Initialize an empty list to store the conditions
+    # Initialize an empty list to store the conditions
     conditions = []
     params = []
 
@@ -51,11 +51,11 @@ def units():
 
 def get_unit_data(u_id):
     db = get_db()
-    cursor = db.cursor(cursor_factory=DictCursor)  # Setting dictionary=True to return results as dictionaries
+    cursor = db.cursor(cursor_factory=DictCursor)  
     cursor.execute(
-        'SELECT  u_id, u_name, u_type, u_status, u_description, u_p_id, u_f_id, u_code, u_pm_id FROM maintenance.units WHERE u_id = %s', (u_id,)
+        'SELECT * FROM maintenance.units WHERE u_id = %s', (u_id,)
     )
-    unit_data = cursor.fetchone()  # Fetch one row because we're fetching data for a single property
+    unit_data = cursor.fetchone()  
     db.close()
     return unit_data
 
@@ -69,11 +69,21 @@ def create():
         u_status = data.get('u_status')
         u_description = data.get('u_description')
         u_p_id = data.get('u_p_id')
-        p_id = data.get('u_p_id')
 
-        property_data = get_property_data(p_id)
+        l_code = data.get('l_code')
+        l_start_date = data.get('l_start_date')
+        l_end_date = data.get('l_end_date')
+        l_lessee_name = data.get('l_lessee_name')
+        l_phone = data.get('l_phone')
+        l_email = data.get('l_email')
+        passcode = data.get('l_phone')
+        l_rent = data.get('l_rent')
+        l_secondary_phone = data.get('l_secondary_phone')
+        l_national_id = data.get('l_national_id')
+
+        property_data = get_property_data(data.get('u_p_id'))
         if not property_data:
-            return jsonify({'error': 'Property with provided p_id not found.'}), 404
+            return jsonify({'error': 'Property  not found.'}), 404
         u_f_id = property_data['p_f_id']
         if not data.get('u_pm_id'):
             u_pm_id = property_data['p_manager_id']
@@ -87,11 +97,35 @@ def create():
                 db = get_db()
                 cursor = db.cursor()
                 cursor.execute(
-                    'INSERT INTO maintenance.units (u_name, u_type, u_status, u_description, u_p_id, u_f_id, u_pm_id)'
-                    ' VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                    (u_name, u_type, u_status, u_description, u_p_id, u_f_id, u_pm_id)
+                    'INSERT INTO maintenance.units (u_name, u_type, u_status,'
+                    ' u_description, u_p_id, u_f_id, u_pm_id, passcode)'
+                    ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                    (u_name, u_type, u_status, u_description, u_p_id, u_f_id,
+                     u_pm_id, passcode)                
+                )
+               
+                # Retrieve the last inserted ID
+                cursor.execute(
+                    'SELECT u_id FROM maintenance.units WHERE u_p_id = %s AND u_name = %s',
+                    (u_p_id, u_name)
+                  )
+                row = cursor.fetchone()
+                if row:
+                    l_u_id = row[0]
+                else:
+                    return jsonify({'error': 'Failed to fetch unit ID after insertion'}), 500
+
+                cursor.execute(
+                    'INSERT INTO maintenance.leases (l_start_date, l_end_date,'
+                    ' l_rent, l_u_id, tenant_name, l_code, l_email, l_phone,'
+                    ' l_secondary_phone, l_national_id,l_lessee_name )'
+                    ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                    (l_start_date, l_end_date, l_rent, l_u_id, l_lessee_name,
+                     l_code, l_email, l_phone,
+                     l_secondary_phone, l_national_id, l_lessee_name)
                    
                 )
+
                 db.commit()
             except Exception as e:
                 return jsonify({'error': str(e)}), 500  # Return error response

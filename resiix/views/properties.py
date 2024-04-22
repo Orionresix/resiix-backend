@@ -83,7 +83,7 @@ def get_property_data(p_id):
     db = get_db()
     cursor = db.cursor(cursor_factory=DictCursor)  # Setting dictionary=True to return results as dictionaries
     cursor.execute(
-        'SELECT p_f_id, p_id, p_name, p_num_units, p_manager_id, p_country, p_city FROM maintenance.properties WHERE p_id = %s', (p_id,)
+        'SELECT * FROM maintenance.properties WHERE p_id = %s', (p_id,)
     )
     property_data = cursor.fetchone()  # Fetch one row because we're fetching data for a single property
     db.close()

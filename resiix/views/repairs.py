@@ -2,6 +2,7 @@ from flask import (
     Blueprint, request, jsonify
 )
 from resiix.views.db import get_db
+from resiix.views.units import get_unit_data
 
 
 bp = Blueprint('repairs', __name__, url_prefix='/repairs')
@@ -117,12 +118,21 @@ def create():
         r_img_url2 = data.get('r_img_url2')
         r_l_id = data.get('r_l_id')
         r_u_id = data.get('u_id')
-        r_p_id = data.get('p_id')
         r_phone = data.get('r_phone')
         r_priority = data.get('r_priority')
+
+        r_p_id = data.get('p_id')
         r_f_id = 1
 
     error = None
+    unitdata = get_unit_data(r_u_id)
+    r_p_id = unitdata['u_p_id']
+    r_l_id = unitdata['u_active_lease_no']
+    r_f_id = unitdata['u_f_id']
+    
+
+
+
     if error is not None:
         return jsonify({'error': error}), 400  # Return error response
     else:
