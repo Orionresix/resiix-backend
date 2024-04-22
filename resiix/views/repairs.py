@@ -28,7 +28,11 @@ def get_repairs():
         params.append(r_id)
 
     r_status = request.args.get('r_status')
-    if r_status:
+    if r_status == 'PENDING':
+        new_status = 'DONE'
+        conditions.append('r_status != %s')
+        params.append(new_status)
+    elif r_status is not None:
         conditions.append('r_status = %s')
         params.append(r_status)
 

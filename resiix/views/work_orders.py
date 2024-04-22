@@ -104,7 +104,7 @@ def create():
         wo_u_id = data.get('wo_u_id')
         wo_assigned_to = data.get('wo_assigned_to')
         wo_assigned_by = data.get('wo_assigned_by')
-        wo_status = data.get('wo_status')
+        wo_status = "ASSIGNED"
         wo_due_date = data.get('wo_due_date')
         wo_r_id = data.get('wo_r_id')
         f_id = 1
