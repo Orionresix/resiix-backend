@@ -56,7 +56,7 @@ def work_orders():
         base_query += ' AND ' + ' AND '.join(conditions)
 
     # Add ORDER BY clause to the query
-    base_query += ' ORDER BY wo_created_time, r_created_time DESC'
+    base_query += ' ORDER BY wo_id DESC'
 
     # Execute the SQL query
     cursor.execute(base_query, params)

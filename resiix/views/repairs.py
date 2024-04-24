@@ -61,7 +61,7 @@ def get_repairs():
         base_query += ' AND ' + ' AND '.join(conditions)
 
     # Add ORDER BY clause to the query
-    base_query += ' ORDER BY r_created_time DESC'
+    base_query += ' ORDER BY r_id DESC'
 
     # Execute the SQL query
     cursor.execute(base_query, params)
