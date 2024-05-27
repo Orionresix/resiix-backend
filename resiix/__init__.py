@@ -9,6 +9,7 @@ from .views.auth import login_manager, auth_bp
 
 def create_app(config_object=Config):
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(config_object)
     register_blueprints(app)
     login_manager.init_app(app)
@@ -18,7 +19,7 @@ def create_app(config_object=Config):
     mail = Mail(app)
     jwt = JWTManager(app)
     db = SQLAlchemy(app)
-    CORS(app)
+    
     return app
 
 

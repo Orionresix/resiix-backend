@@ -40,8 +40,7 @@ def get_google_provider_cfg():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-         
+    if request.method ==  "GET":        
     # Find out what URL to hit for Google login
         google_provider_cfg = get_google_provider_cfg()
         authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -114,8 +113,9 @@ def callback():
 
 # Send user back to homepage
      # Return JWT token as JSON
-    return jsonify({'token': jwt_token})
-    # return redirect(url_for("auth.index"))
+    #return jsonify({'token': jwt_token})
+
+    return redirect(url_for("auth.index"))
 
 
 @auth_bp.route("/logout")
@@ -131,20 +131,21 @@ def index():
         # Set user data in session (example)
         session['user_id'] = current_user.id
         session['user_email'] = current_user.email
-
-        return current_user
+        session['user_name'] = current_user.name
         return redirect("http://localhost:3000/dashboard/home")
+        #return current_user.redirect(url_for)
 
-        # return (
-        #     "<p>Hello, {}! You're logged in! Email: {}</p>"
-        #     "<div><p>Google Profile Picture:</p>"
-        #     '<img src="{}" alt="Google profile pic"></img></div>'
-        #     '<a class="button" href="/logout">Logout</a>'.format(
-        #         current_user.name, current_user.email, current_user.profile_pic  )
-        # )
     else:
         #return redirect("http://localhost:3000")
         return redirect(url_for("auth.login"))
+    
+@auth_bp.route("/profile")
+def profile():
+    if 'user_id' not in session:
+        return redirect(url_for("auth.index"))
+   
+    return  session['user_email']
+
 
 
 
