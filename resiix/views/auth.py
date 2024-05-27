@@ -143,7 +143,8 @@ def index():
         #         current_user.name, current_user.email, current_user.profile_pic  )
         # )
     else:
-        return redirect("http://localhost:3000")
+        #return redirect("http://localhost:3000")
+        return redirect(url_for("auth.login"))
 
 
 
