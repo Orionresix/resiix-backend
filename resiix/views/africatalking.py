@@ -41,6 +41,7 @@ def properties():
 def create():
     if request.method == 'POST':
         data = request.json
+        print(f"Received data: {data}")
 
         name = data.get('name')
         phone = data.get('phone')
