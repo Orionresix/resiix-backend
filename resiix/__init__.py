@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import SECRET_KEY, UPLOAD_FOLDER, Config
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
-from .views.auth import login_manager, auth_bp
+from .views.auth import  auth_bp
 
 
 def create_app(config_object=Config):
@@ -12,7 +12,7 @@ def create_app(config_object=Config):
     CORS(app)
     app.config.from_object(config_object)
     register_blueprints(app)
-    login_manager.init_app(app)
+    # login_manager.init_app(app)
     app.secret_key = SECRET_KEY
     app.config['JWT_SECRET_KEY'] = SECRET_KEY
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
