@@ -5,6 +5,7 @@ from psycopg2.extras import DictCursor
 # from werkzeug.exceptions import abort
 
 from resiix.views.db import get_db
+from resiix.views.send_sms import postsms
 
 
 bp = Blueprint('eusers', __name__, url_prefix='/eusers')
@@ -55,6 +56,7 @@ def create():
         inspectionrequest = data.get('inspectionrequest')
         inspectiondate = data.get('inspectiondate')
         smsstatus = data.get('smsstatus')
+        message = f"Dear {name}, your details have been received. We will send you a quotation shortly."
 
         error = None
 
@@ -77,6 +79,10 @@ def create():
                      smsstatus)
                 ) 
                 db.commit()
+
+                recipients = [phone] if phone else []
+                postsms(message, recipients)
+
             except Exception as e:
                 return jsonify({'error': str(e)}), 500  # Return error response
             finally:
