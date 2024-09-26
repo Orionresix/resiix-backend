@@ -68,10 +68,10 @@ def create():
                 db = get_db()
                 cursor = db.cursor()
                 cursor.execute(
-                    'INSERT INTO maintenance.properties (name, phone, email,'
+                    'INSERT INTO ecoumeme.eusers (name, phone, email,'
                     'county, bill1, bill2, bill3, fridge, washer, ac, ecooker,'
                     ' inspectionrequest, inspectiondate, smsstatus)'
-                    ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s)',
+                    ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                     (name, phone, email, county, bill1, bill2, bill3, fridge,
                      washer, ac, ecooker, inspectionrequest, inspectiondate,
                      smsstatus)
@@ -83,20 +83,6 @@ def create():
                 cursor.close()  # Close the cursor
                 db.close()  # Close the database connection
 
-        return jsonify({'message': 'Property added successfully'}), 201
+        return jsonify({'message': 'user added successfully'}), 201
 
     return jsonify({'error': 'Method not allowed'}), 405
-
-
-@bp.route('/sms')
-def sms():
-    sms_sender = send_sms(sms_client)
-        # Define the dynamic parameters
-    message = "Hey, this is a test message!"
-    recipients = ["+254722123123", "+254733456789"]
-    sender = "XXYYZZ"
-    
-    # Call the sending method with dynamic parameters
-    sms_sender.sending(message, recipients, sender)
-    
-    return "SMS sent (or attempt logged)!"
