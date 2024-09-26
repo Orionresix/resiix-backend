@@ -8,8 +8,11 @@ GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
 SECRET_KEY = os.environ.get("secret_key", None)
+UPLOAD_FOLDER = 'resiix/images/'
 
 
 class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    USERNAME = os.environ.get('Usernameprod')
+    AFRICA_TALKING_KEY = os.environ.get('AFRICA_TALKING_api_key_prod')

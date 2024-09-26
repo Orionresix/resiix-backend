@@ -1,9 +1,10 @@
 from flask import (
     Blueprint, request, jsonify
 )
+from werkzeug.utils import secure_filename
 from resiix.views.db import get_db
 from resiix.views.units import get_unit_data
-
+import os
 
 bp = Blueprint('repairs', __name__, url_prefix='/repairs')
 
@@ -109,12 +110,32 @@ def get_request_count():
                     "totalExpenses": count})
 
 
+UPLOAD_FOLDER = 'resiix/images/'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+
+
 @bp.route('/create',  methods=['POST'])
 def create():
     db = get_db()
     cursor = db.cursor()
     if request.method == 'POST':
-        data = request.json
+        data = request.form
+
+        if 'r_img_url' not in request.files:
+            return jsonify({'error': 'No image part'}), 400
+        file = request.files['r_img_url']
+        if file.filename == '':
+            return jsonify({'error': 'No selected image'}), 400
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join('resiix/images/', filename)
+            file.save(file_path)
+        
         r_type = data.get('r_type')
         r_description = data.get('r_description')
         r_img_url = data.get('r_img_url')
