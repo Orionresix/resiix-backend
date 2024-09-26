@@ -27,8 +27,7 @@ class SendSMS:
             return str(e)
 
 
-@bp.route('/')
-def postsms():
+def postsms(message, recipients):
     # Access the config values inside the route, where the app context is available
     name = current_app.config['USERNAME']
     key = current_app.config['AFRICA_TALKING_KEY']
@@ -43,8 +42,8 @@ def postsms():
     sms_sender = SendSMS(sms)
 
     # Define the dynamic parameters
-    message = "Hey, this is a test message!"
-    recipients = ["+254701103297"]
+    # message = "Hey, this is a test message!"
+    # recipients = ["+254701103297"]
     
     # Call the sending method with dynamic parameters
     response = sms_sender.sending(message, recipients)
